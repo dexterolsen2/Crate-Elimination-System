@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crate Opening Elimination</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .setup-section {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .setup-section label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .setup-section input {
+            width: 200px;
+            padding: 10px;
+            font-size: 1em;
+            border-radius: 5px;
+            border: none;
+            margin-right: 10px;
+        }
+
+        .setup-section button {
+            padding: 10px 20px;
+            font-size: 1em;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .setup-section button:hover {
+            background: #45a049;
+        }
+
+        .crate-section {
+            background: rgba(0,0,0,0.3);
+            padding: 40px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .crates {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .crate {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            border: 3px solid rgba(255,255,255,0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7em;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            transition: background 0.05s linear, border-color 0.05s linear;
+        }
+
+        .crate.middle {
+            border: 4px solid #FFD700;
+            box-shadow: 0 0 20px #FFD700;
+            transform: scale(1.1);
+        }
+
+        .crate-number {
+            font-size: 1.2em;
+            margin-top: 5px;
+        }
+
+        .spin-button {
+            padding: 15px 40px;
+            font-size: 1.3em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .spin-button:hover {
+            transform: scale(1.05);
+        }
+
+        .spin-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-section {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .result-display {
+            display: inline-block;
+            padding: 30px;
+            background: rgba(0,0,0,0.4);
+            border-radius: 15px;
+            min-width: 300px;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .result-crate {
+            width: 120px;
+            height: 120px;
+            margin: 20px auto;
+            border-radius: 15px;
+            border: 4px solid white;
+            animation: pulse 0.5s;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .result-text {
+            font-size: 1.5em;
+            margin: 10px 0;
+        }
+
+        .players-section {
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .players-section h2 {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .players-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            max-height: 600px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .player-card {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+        }
+
+        .player-card.eliminated {
+            opacity: 0.5;
+            background: rgba(255,0,0,0.2);
+        }
+
+        .player-card.eliminated .player-number {
+            text-decoration: line-through;
+        }
+
+        .player-number {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .player-status {
+            font-size: 0.9em;
+            margin-top: 5px;
+            color: #4CAF50;
+        }
+
+        .player-card.eliminated .player-status {
+            color: #f44336;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content h2 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .modal-content p {
+            font-size: 1.3em;
+            margin-bottom: 30px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .modal-button {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            font-weight: bold;
+        }
+
+        .modal-button.primary {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .modal-button:hover {
+            transform: scale(1.05);
+        }
+
+        .save-section {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+        }
+
+        .save-section button {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            margin: 0 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .save-button {
+            background: #2196F3;
+            color: white;
+        }
+
+        .save-button:hover {
+            background: #1976D2;
+        }
+
+        .load-button {
+            background: #FF9800;
+            color: white;
+        }
+
+        .load-button:hover {
+            background: #F57C00;
+        }
+
+        #fileInput {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎁 Crate Opening Elimination</h1>
+
+        <div class="setup-section">
+            <label>Number of Players:</label>
+            <input type="number" id="playerCount" min="2" max="500" value="10">
+            <button onclick="initGame()">Start Game</button>
+        </div>
+
+        <div class="crate-section">
+            <div class="crates" id="cratesDisplay"></div>
+            <button class="spin-button" id="spinButton" onclick="spin()" disabled>🎲 Spin</button>
+        </div>
+
+        <div class="result-section" id="resultSection" style="display: none;">
+            <div class="result-display">
+                <div class="result-crate" id="resultCrate"></div>
+                <div class="result-text" id="resultText"></div>
+            </div>
+        </div>
+
+        <div class="players-section" id="playersSection" style="display: none;">
+            <h2>Players Status</h2>
+            <div class="players-grid" id="playersGrid"></div>
+        </div>
+
+        <div class="save-section">
+            <button class="save-button" onclick="saveGame()">💾 Save JSON File</button>
+            <button class="load-button" onclick="document.getElementById('fileInput').click()">📂 Load JSON File</button>
+            <input type="file" id="fileInput" accept=".json" onchange="loadGame(event)">
+        </div>
+    </div>
+
+    <div class="modal" id="winnerModal">
+        <div class="modal-content">
+            <h2>🎉 Winner! 🎉</h2>
+            <p id="winnerText"></p>
+            <div class="modal-buttons">
+                <button class="modal-button primary" onclick="playAgain()">Play Again!</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const rainbowKeyframes = [
+            { r: 255, g: 0, b: 0 },      // #FF0000 Red
+            { r: 255, g: 140, b: 0 },    // #FF8C00 Orange
+            { r: 255, g: 255, b: 0 },    // #FFFF00 Yellow
+            { r: 0, g: 255, b: 0 },      // #00FF00 Green
+            { r: 0, g: 0, b: 255 },      // #0000FF Blue
+            { r: 128, g: 0, b: 255 }     // #8000FF Purple
+        ];
+
+        let gameState = {
+            totalPlayers: 0,
+            players: [],
+            isGameActive: false,
+            playerColors: []
+        };
+
+        function generateRainbowColors(count) {
+            const colors = [];
+            const segments = rainbowKeyframes.length - 1;
+            
+            for (let i = 0; i < count; i++) {
+                const position = i / (count - 1);
+                const scaledPosition = position * segments;
+                const segmentIndex = Math.floor(scaledPosition);
+                const segmentProgress = scaledPosition - segmentIndex;
+                
+                const startColor = rainbowKeyframes[Math.min(segmentIndex, segments - 1)];
+                const endColor = rainbowKeyframes[Math.min(segmentIndex + 1, segments)];
+                
+                const r = Math.round(startColor.r + (endColor.r - startColor.r) * segmentProgress);
+                const g = Math.round(startColor.g + (endColor.g - startColor.g) * segmentProgress);
+                const b = Math.round(startColor.b + (endColor.b - startColor.b) * segmentProgress);
+                
+                colors.push(`#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`);
+            }
+            
+            return colors;
+        }
+
+        function initGame() {
+            const count = parseInt(document.getElementById('playerCount').value);
+            if (count < 2 || count > 500) {
+                alert('Please enter a number between 2 and 500');
+                return;
+            }
+
+            gameState.totalPlayers = count;
+            gameState.players = [];
+            gameState.isGameActive = true;
+            gameState.playerColors = generateRainbowColors(count);
+
+            for (let i = 1; i <= count; i++) {
+                gameState.players.push({
+                    number: i,
+                    eliminated: false,
+                    color: gameState.playerColors[i - 1]
+                });
+            }
+
+            renderCrates();
+            renderPlayers();
+            document.getElementById('spinButton').disabled = false;
+            document.getElementById('playersSection').style.display = 'block';
+            document.getElementById('resultSection').style.display = 'none';
+        }
+
+        function renderCrates(crateData = null) {
+            const cratesDisplay = document.getElementById('cratesDisplay');
+            cratesDisplay.innerHTML = '';
+
+            let displayData;
+            if (crateData) {
+                displayData = crateData;
+            } else {
+                displayData = gameState.players.length > 0 ? 
+                    gameState.players.slice(0, Math.min(11, gameState.players.length)) :
+                    Array(11).fill(null).map((_, i) => ({ number: i + 1, color: '#FF0000' }));
+            }
+
+            for (let i = 0; i < 11; i++) {
+                const crate = document.createElement('div');
+                crate.className = 'crate';
+                if (i === 5) {
+                    crate.classList.add('middle');
+                }
+                
+                const player = displayData[i] || displayData[0];
+                crate.style.background = player.color;
+                crate.innerHTML = `<div class="crate-number">#${player.number}</div>`;
+                cratesDisplay.appendChild(crate);
+            }
+        }
+
+        function renderPlayers() {
+            const playersGrid = document.getElementById('playersGrid');
+            playersGrid.innerHTML = '';
+
+            gameState.players.forEach(player => {
+                const card = document.createElement('div');
+                card.className = `player-card ${player.eliminated ? 'eliminated' : ''}`;
+                card.style.borderColor = player.color;
+                card.innerHTML = `
+                    <div class="player-number" style="color: ${player.color}">Player ${player.number}</div>
+                    <div class="player-status">${player.eliminated ? 'Eliminated' : 'Active'}</div>
+                `;
+                playersGrid.appendChild(card);
+            });
+        }
+
+        function spin() {
+            if (!gameState.isGameActive) return;
+
+            const activePlayers = gameState.players.filter(p => !p.eliminated);
+            if (activePlayers.length === 0) return;
+
+            document.getElementById('spinButton').disabled = true;
+
+            // Generate random sequence of active players
+            const sequence = [];
+            for (let i = 0; i < 80; i++) {
+                const randomPlayer = activePlayers[Math.floor(Math.random() * activePlayers.length)];
+                sequence.push(randomPlayer);
+            }
+
+            let currentFrame = 0;
+            let eliminatedPlayer = null;
+            let lastTime = Date.now();
+            let position = 0;
+
+            function animate() {
+                const now = Date.now();
+                const deltaTime = now - lastTime;
+                lastTime = now;
+
+                // Slightly exponential deceleration - faster than linear but smoother than cubic
+                const totalDuration = 5000; // 10 seconds total
+                const progress = Math.min(currentFrame / 300, 1);
+                const easeOut = 1 - Math.pow(1 - progress, 1);
+                
+                // Speed decreases with slight exponential curve
+                const speed = 1 * (1 - easeOut) + 0.01;
+                position += speed;
+
+                const frameIndex = Math.floor(position);
+
+                if (progress >= 1) {
+                    // Animation complete
+                    eliminatedPlayer.eliminated = true;
+
+                    // Show result
+                    const resultSection = document.getElementById('resultSection');
+                    const resultCrate = document.getElementById('resultCrate');
+                    const resultText = document.getElementById('resultText');
+
+                    resultCrate.style.background = eliminatedPlayer.color;
+                    resultText.innerHTML = `Player ${eliminatedPlayer.number}<br>Eliminated!`;
+                    resultSection.style.display = 'block';
+
+                    renderPlayers();
+
+                    // Check if only one player remains
+                    const remainingPlayers = gameState.players.filter(p => !p.eliminated);
+                    if (remainingPlayers.length === 1) {
+                        setTimeout(() => {
+                            showWinner(remainingPlayers[0]);
+                        }, 1000);
+                    } else {
+                        setTimeout(() => {
+                            document.getElementById('spinButton').disabled = false;
+                        }, 1500);
+                    }
+                    return;
+                }
+
+                // Shift the display
+                const displaySlice = [];
+                for (let i = 0; i < 11; i++) {
+                    const seqIndex = (frameIndex + i) % sequence.length;
+                    displaySlice.push(sequence[seqIndex]);
+                }
+                
+                // Store the middle player (this will be the eliminated player at the end)
+                eliminatedPlayer = displaySlice[5];
+                
+                renderCrates(displaySlice);
+                currentFrame++;
+
+                requestAnimationFrame(animate);
+            }
+
+            animate();
+        }
+
+        function showWinner(winner) {
+            document.getElementById('winnerText').textContent = `Player ${winner.number} is the winner!`;
+            document.getElementById('winnerModal').classList.add('active');
+            gameState.isGameActive = false;
+        }
+
+        function playAgain() {
+            document.getElementById('winnerModal').classList.remove('active');
+            initGame();
+        }
+
+        function saveGame() {
+            const filename = prompt('Enter filename for JSON file:', 'game-progress');
+            if (!filename) return;
+
+            const data = JSON.stringify(gameState, null, 2);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = filename.endsWith('.json') ? filename : `${filename}.json`;
+            
+            document.body.appendChild(a);
+            a.click();
+            
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 100);
+        }
+
+        function loadGame(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const loadedState = JSON.parse(e.target.result);
+                    gameState = loadedState;
+                    document.getElementById('playerCount').value = gameState.totalPlayers;
+                    renderCrates();
+                    renderPlayers();
+                    document.getElementById('playersSection').style.display = 'block';
+                    document.getElementById('spinButton').disabled = !gameState.isGameActive;
+                    
+                    const remainingPlayers = gameState.players.filter(p => !p.eliminated);
+                    if (remainingPlayers.length === 1) {
+                        showWinner(remainingPlayers[0]);
+                    }
+                } catch (err) {
+                    alert('Error loading file: Invalid JSON format');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+    </script>
+</body>
+</html>

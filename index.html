@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crate Opening Elimination</title>
     <style>
+        :root {
+            --base-scale: min(1, max(0.5, sqrt((100vw * 100vh) / (1920 * 1080))));
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -15,54 +19,55 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             min-height: 100vh;
-            padding: 10px;
+            padding: calc(10px * var(--base-scale));
             color: white;
             overflow-x: hidden;
+            font-size: calc(16px * var(--base-scale));
         }
 
         .container {
             max-width: 100%;
             margin: 0 auto;
-            padding: 0 5px;
+            padding: 0 calc(5px * var(--base-scale));
         }
 
         h1 {
             text-align: center;
-            margin-bottom: 20px;
-            font-size: clamp(1.5em, 5vw, 2.5em);
+            margin-bottom: calc(20px * var(--base-scale));
+            font-size: calc(2.5em * var(--base-scale));
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
         .setup-section {
             background: rgba(255,255,255,0.1);
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+            padding: calc(15px * var(--base-scale));
+            border-radius: calc(10px * var(--base-scale));
+            margin-bottom: calc(20px * var(--base-scale));
             backdrop-filter: blur(10px);
         }
 
         .setup-section label {
             display: block;
-            margin-bottom: 8px;
-            font-size: clamp(0.9em, 2.5vw, 1.2em);
+            margin-bottom: calc(8px * var(--base-scale));
+            font-size: calc(1.2em * var(--base-scale));
         }
 
         .setup-section input {
-            width: min(200px, 80%);
-            padding: 8px;
-            font-size: clamp(0.8em, 2vw, 1em);
-            border-radius: 5px;
+            width: min(calc(200px * var(--base-scale)), 80%);
+            padding: calc(8px * var(--base-scale));
+            font-size: calc(1em * var(--base-scale));
+            border-radius: calc(5px * var(--base-scale));
             border: none;
-            margin-right: 10px;
+            margin-right: calc(10px * var(--base-scale));
         }
 
         .setup-section button {
-            padding: 8px 16px;
-            font-size: clamp(0.8em, 2vw, 1em);
+            padding: calc(8px * var(--base-scale)) calc(16px * var(--base-scale));
+            font-size: calc(1em * var(--base-scale));
             background: #4CAF50;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: calc(5px * var(--base-scale));
             cursor: pointer;
             transition: background 0.3s;
         }
@@ -71,11 +76,37 @@
             background: #45a049;
         }
 
+        .random-bet-button {
+            background: #9C27B0;
+            font-size: calc(1.2em * var(--base-scale));
+            padding: calc(8px * var(--base-scale)) calc(12px * var(--base-scale));
+            margin-left: calc(10px * var(--base-scale));
+        }
+
+        .random-bet-button:hover {
+            background: #7B1FA2;
+        }
+
+        #totalBetDisplay {
+            margin-top: calc(10px * var(--base-scale));
+            font-size: calc(1.1em * var(--base-scale));
+            color: #FFD700;
+        }
+
+        .bet-range-inputs {
+            margin-top: calc(10px * var(--base-scale));
+            display: none;
+        }
+
+        .bet-range-inputs.active {
+            display: block;
+        }
+
         .crate-section {
             background: rgba(0,0,0,0.3);
-            padding: 20px 5px;
-            border-radius: 15px;
-            margin-bottom: 20px;
+            padding: calc(20px * var(--base-scale)) calc(5px * var(--base-scale));
+            border-radius: calc(15px * var(--base-scale));
+            margin-bottom: calc(20px * var(--base-scale));
             text-align: center;
             overflow: visible;
         }
@@ -84,45 +115,48 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: min(1vw, 8px);
-            margin-bottom: 20px;
+            gap: calc(max(min(1vw, 10px), 6px) * var(--base-scale));
+            margin-bottom: calc(20px * var(--base-scale));
             flex-wrap: nowrap;
             overflow: visible;
-            padding: 5px 2px;
+            padding: calc(5px * var(--base-scale)) calc(2px * var(--base-scale));
             width: 100%;
         }
 
         .crate {
             width: calc((100vw - 40px - (10 * min(1vw, 8px))) / 11);
             height: calc((100vw - 40px - (10 * min(1vw, 8px))) / 11);
-            max-width: 80px;
-            max-height: 80px;
-            min-width: 30px;
-            min-height: 30px;
+            max-width: calc(80px * var(--base-scale));
+            max-height: calc(80px * var(--base-scale));
+            min-width: calc(30px * var(--base-scale));
+            min-height: calc(30px * var(--base-scale));
             flex-shrink: 0;
             flex-grow: 0;
-            border-radius: 10px;
-            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 15%;
+            border: calc(3px * var(--base-scale)) solid rgba(255,255,255,0.5);
+            outline: calc(2px * var(--base-scale)) solid rgba(0,0,0,0.4);
+            outline-offset: calc(-1px * var(--base-scale));
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-size: clamp(0.4em, 1.5vw, 0.8em);
             font-weight: bold;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
             transition: background 0.05s linear, border-color 0.05s linear;
             box-sizing: border-box;
+            font-size: calc(16px * var(--base-scale));
         }
 
         .crate.middle {
-            border: 3px solid #FFD700;
-            box-shadow: 0 0 15px #FFD700;
+            border: calc(4px * var(--base-scale)) solid #FFD700;
+            outline: calc(2px * var(--base-scale)) solid rgba(255,215,0,0.6);
+            box-shadow: 0 0 calc(15px * var(--base-scale)) #FFD700;
             transform: scale(1.05);
         }
 
         .crate-number {
-            font-size: clamp(0.8em, 2vw, 1.2em);
-            margin-top: 2px;
+            font-size: calc(0.5em * var(--base-scale));
+            margin-top: calc(2px * var(--base-scale));
             line-height: 1;
         }
 
@@ -144,7 +178,6 @@
                 min-height: 25px;
                 border-radius: 6px;
                 border-width: 2px;
-                font-size: clamp(0.35em, 1.2vw, 0.6em);
             }
             
             .crate.middle {
@@ -154,23 +187,7 @@
             }
             
             .crate-number {
-                font-size: clamp(0.7em, 1.5vw, 1em);
-                margin-top: 1px;
-            }
-            
-            h1 {
-                font-size: clamp(1.2em, 4vw, 2em);
-                margin-bottom: 15px;
-            }
-            
-            .setup-section {
-                padding: 10px;
-                margin-bottom: 15px;
-            }
-            
-            .spin-button {
-                padding: clamp(8px, 1.5vw, 12px) clamp(16px, 3vw, 30px);
-                font-size: clamp(0.9em, 2vw, 1.1em);
+                font-size: 0.45em;
             }
         }
 
@@ -183,6 +200,9 @@
                 border-width: 2px;
                 transform: scale(1.03);
             }
+            .crate-number {
+                font-size: 0.45em;
+            }
         }
 
         @media (max-width: 480px) {
@@ -193,17 +213,9 @@
             .crate.middle {
                 border-width: 2px;
             }
-        }
-
-        .crate.middle {
-            border: 4px solid #FFD700;
-            box-shadow: 0 0 20px #FFD700;
-            transform: scale(1.1);
-        }
-
-        .crate-number {
-            font-size: 1.2em;
-            margin-top: 5px;
+            .crate-number {
+                font-size: 0.4em;
+            }
         }
 
         .spin-button {
@@ -264,6 +276,48 @@
         .result-text {
             font-size: 1.5em;
             margin: 10px 0;
+        }
+
+        .bet-checker-section {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .bet-checker-section h3 {
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .bet-checker-section input {
+            width: min(150px, 60%);
+            padding: 8px;
+            font-size: 1em;
+            border-radius: 5px;
+            border: none;
+            margin-right: 10px;
+        }
+
+        .bet-checker-section button {
+            padding: 8px 16px;
+            font-size: 1em;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .bet-checker-section button:hover {
+            background: #1976D2;
+        }
+
+        #betCheckerResult {
+            margin-top: 10px;
+            font-size: 1.1em;
+            color: #FFD700;
         }
 
         .players-section {
@@ -432,7 +486,15 @@
             <br><br>
             <label>Bet Amount Per Player (optional - leave empty for no money):</label>
             <input type="number" id="betAmount" min="0" step="1" placeholder="Enter whole number">
-            <div id="totalBetDisplay" style="margin-top: 10px; font-size: 1.1em; color: #FFD700;"></div>
+            <button class="random-bet-button" onclick="toggleBetRange()" title="Random Bet Amounts">🎲</button>
+            <div class="bet-range-inputs" id="betRangeInputs">
+                <br>
+                <label>Min Bet:</label>
+                <input type="number" id="minBet" min="0" step="1" value="1">
+                <label>Max Bet:</label>
+                <input type="number" id="maxBet" min="0" step="1" value="100">
+            </div>
+            <div id="totalBetDisplay"></div>
             <br>
             <button onclick="initGame()">Start Game</button>
         </div>
@@ -447,6 +509,13 @@
                 <div class="result-crate" id="resultCrate"></div>
                 <div class="result-text" id="resultText"></div>
             </div>
+        </div>
+
+        <div class="bet-checker-section" id="betCheckerSection" style="display: none;">
+            <h3>Check Player Bet Amount</h3>
+            <input type="number" id="playerCheckNumber" min="1" placeholder="Player #">
+            <button onclick="checkPlayerBet()">Check</button>
+            <div id="betCheckerResult"></div>
         </div>
 
         <div class="players-section" id="playersSection" style="display: none;">
@@ -488,8 +557,31 @@
             playerColors: [],
             betAmount: 0,
             totalBet: 0,
-            hasBet: false
+            hasBet: false,
+            randomBets: false
         };
+
+        function toggleBetRange() {
+            const betRangeInputs = document.getElementById('betRangeInputs');
+            betRangeInputs.classList.toggle('active');
+        }
+
+        function checkPlayerBet() {
+            const playerNum = parseInt(document.getElementById('playerCheckNumber').value);
+            const resultDiv = document.getElementById('betCheckerResult');
+            
+            if (!playerNum || playerNum < 1 || playerNum > gameState.totalPlayers) {
+                resultDiv.textContent = 'Invalid player number!';
+                return;
+            }
+            
+            const player = gameState.players.find(p => p.number === playerNum);
+            if (player && gameState.hasBet) {
+                resultDiv.textContent = `Player ${playerNum} bet: $${player.betAmount}`;
+            } else {
+                resultDiv.textContent = 'No bet information available';
+            }
+        }
 
         function generateRainbowColors(count) {
             const colors = [];
@@ -522,30 +614,70 @@
             }
 
             const betInput = document.getElementById('betAmount').value;
-            const betPerPlayer = betInput ? parseInt(betInput) : 0;
-            const totalBet = betPerPlayer * count;
+            const betRangeActive = document.getElementById('betRangeInputs').classList.contains('active');
+            
+            let betPerPlayer = 0;
+            let totalBet = 0;
+            let randomBets = false;
 
             gameState.totalPlayers = count;
             gameState.players = [];
             gameState.isGameActive = true;
             gameState.playerColors = generateRainbowColors(count);
+
+            if (betRangeActive) {
+                // Random bets mode
+                const minBet = parseInt(document.getElementById('minBet').value) || 1;
+                const maxBet = parseInt(document.getElementById('maxBet').value) || 100;
+                randomBets = true;
+                
+                for (let i = 1; i <= count; i++) {
+                    const playerBet = Math.floor(Math.random() * (maxBet - minBet + 1)) + minBet;
+                    totalBet += playerBet;
+                    gameState.players.push({
+                        number: i,
+                        eliminated: false,
+                        color: gameState.playerColors[i - 1],
+                        betAmount: playerBet
+                    });
+                }
+            } else if (betInput) {
+                // Fixed bet per player
+                betPerPlayer = parseInt(betInput);
+                totalBet = betPerPlayer * count;
+                
+                for (let i = 1; i <= count; i++) {
+                    gameState.players.push({
+                        number: i,
+                        eliminated: false,
+                        color: gameState.playerColors[i - 1],
+                        betAmount: betPerPlayer
+                    });
+                }
+            } else {
+                // No bets
+                for (let i = 1; i <= count; i++) {
+                    gameState.players.push({
+                        number: i,
+                        eliminated: false,
+                        color: gameState.playerColors[i - 1],
+                        betAmount: 0
+                    });
+                }
+            }
+
             gameState.betAmount = betPerPlayer;
             gameState.totalBet = totalBet;
-            gameState.hasBet = betPerPlayer > 0;
-
-            for (let i = 1; i <= count; i++) {
-                gameState.players.push({
-                    number: i,
-                    eliminated: false,
-                    color: gameState.playerColors[i - 1]
-                });
-            }
+            gameState.hasBet = totalBet > 0;
+            gameState.randomBets = randomBets;
 
             if (gameState.hasBet) {
                 document.getElementById('totalBetDisplay').textContent = 
-                    `Total Bet: ${betPerPlayer} × ${count} players = ${totalBet}`;
+                    randomBets ? `Total Prize Pool: $${totalBet}` : `Total Prize Pool: $${betPerPlayer} × ${count} players = $${totalBet}`;
+                document.getElementById('betCheckerSection').style.display = randomBets ? 'block' : 'none';
             } else {
                 document.getElementById('totalBetDisplay').textContent = '';
+                document.getElementById('betCheckerSection').style.display = 'none';
             }
 
             renderCrates();
@@ -608,101 +740,112 @@
 
             // Generate random sequence of active players
             const sequence = [];
-            for (let i = 0; i < 80; i++) {
+            for (let i = 0; i < 100; i++) {
                 const randomPlayer = activePlayers[Math.floor(Math.random() * activePlayers.length)];
                 sequence.push(randomPlayer);
             }
 
-            let currentFrame = 0;
             let eliminatedPlayer = null;
-            let lastTime = Date.now();
-            let position = 0;
+            let startTime = null;
+            const totalDuration = 3000; // 3 seconds total
+            let lastFrameIndex = -1;
+            let hasFinished = false;
+            
+            // Pick the final stopping position ahead of time
+            const finalFrameIndex = 60;
 
-            function animate() {
-                const now = Date.now();
-                const deltaTime = now - lastTime;
-                lastTime = now;
+            function animate(currentTime) {
+                if (!startTime) startTime = currentTime;
+                const elapsed = currentTime - startTime;
 
-                // Slightly exponential deceleration - faster than linear but smoother than cubic
-                const totalDuration = 3500; // 3.5 seconds total
-                const progress = Math.min(currentFrame / 210, 1);
-                const easeOut = 1 - Math.pow(1 - progress, 1.1);
+                // Calculate progress based on elapsed time (0 to 1)
+                let progress = Math.min(elapsed / totalDuration, 1);
                 
-                // Speed decreases with slight exponential curve
-                const speed = 1.1 * (1 - easeOut) + 0.01;
-                position += speed;
-
+                // Ease out with power of 5
+                const easeOut = 1 - Math.pow(1 - progress, 5);
+                
+                // Calculate position - multiply easeOut by (finalFrame - 0.5) 
+                // This ensures we never quite reach the next frame
+                const position = easeOut * (finalFrameIndex - 0.5);
+                
                 const frameIndex = Math.floor(position);
 
-                if (progress >= 1) {
+                // Only update display when we move to a new frame AND haven't reached final frame
+                if (frameIndex !== lastFrameIndex && !hasFinished && frameIndex < finalFrameIndex) {
+                    lastFrameIndex = frameIndex;
+                    
+                    // Shift the display
+                    const displaySlice = [];
+                    for (let i = 0; i < 11; i++) {
+                        const seqIndex = (frameIndex + i) % sequence.length;
+                        displaySlice.push(sequence[seqIndex]);
+                    }
+                    
+                    // Store the middle player
+                    eliminatedPlayer = displaySlice[5];
+                    renderCrates(displaySlice);
+                }
+
+                // When we reach the final frame, lock in and stop
+                if (frameIndex >= finalFrameIndex - 1 && !hasFinished) {
+                    hasFinished = true;
+                    
+                    // Render final position
+                    const finalDisplaySlice = [];
+                    for (let i = 0; i < 11; i++) {
+                        const seqIndex = (finalFrameIndex + i) % sequence.length;
+                        finalDisplaySlice.push(sequence[seqIndex]);
+                    }
+                    eliminatedPlayer = finalDisplaySlice[5];
+                    renderCrates(finalDisplaySlice);
+                    
                     // Animation complete
                     eliminatedPlayer.eliminated = true;
 
-                    // Show result
-                    const resultSection = document.getElementById('resultSection');
-                    const resultCrate = document.getElementById('resultCrate');
-                    const resultText = document.getElementById('resultText');
+                    // Show result after a brief pause
+                    setTimeout(() => {
+                        const resultSection = document.getElementById('resultSection');
+                        const resultCrate = document.getElementById('resultCrate');
+                        const resultText = document.getElementById('resultText');
 
-                    resultCrate.style.background = eliminatedPlayer.color;
-                    resultText.innerHTML = `Player ${eliminatedPlayer.number}<br>Eliminated!`;
-                    resultSection.style.display = 'block';
+                        resultCrate.style.background = eliminatedPlayer.color;
+                        resultText.innerHTML = `Player ${eliminatedPlayer.number}<br>Eliminated!`;
+                        resultSection.style.display = 'block';
 
-                    renderPlayers();
+                        renderPlayers();
 
-                    // Check if only one player remains
-                    const remainingPlayers = gameState.players.filter(p => !p.eliminated);
-                    if (remainingPlayers.length === 1) {
-                        setTimeout(() => {
-                            showWinner(remainingPlayers[0]);
-                        }, 1000);
-                    } else {
-                        setTimeout(() => {
-                            document.getElementById('spinButton').disabled = false;
-                        }, 1500);
-                    }
+                        // Check if only one player remains
+                        const remainingPlayers = gameState.players.filter(p => !p.eliminated);
+                        if (remainingPlayers.length === 1) {
+                            setTimeout(() => {
+                                showWinner(remainingPlayers[0]);
+                            }, 1000);
+                        } else {
+                            setTimeout(() => {
+                                document.getElementById('spinButton').disabled = false;
+                            }, 1500);
+                        }
+                    }, 300);
+                    
                     return;
                 }
 
-                // Shift the display
-                const displaySlice = [];
-                for (let i = 0; i < 11; i++) {
-                    const seqIndex = (frameIndex + i) % sequence.length;
-                    displaySlice.push(sequence[seqIndex]);
+                if (!hasFinished) {
+                    requestAnimationFrame(animate);
                 }
-                
-                // Store the middle player (this will be the eliminated player at the end)
-                eliminatedPlayer = displaySlice[5];
-                
-                renderCrates(displaySlice);
-                currentFrame++;
-
-                requestAnimationFrame(animate);
             }
 
-            animate();
+            requestAnimationFrame(animate);
         }
 
         function showWinner(winner) {
             let winnerMessage = `Player ${winner.number} is the winner!`;
             
             if (gameState.hasBet) {
-                // Calculate prize using the piecewise function
-                const n = gameState.totalPlayers;
-                const money = gameState.betAmount;
+                // Prize pool is just the total bet amount (no multipliers)
+                const prize = gameState.totalBet;
                 
-                // Define the piecewise function f(n)
-                let multiplier;
-                if (n < 100) {
-                    multiplier = 2 * n;
-                } else {
-                    multiplier = 1.666667 * n;
-                }
-                
-                // Calculate prize and expected value
-                const prize = money * multiplier;
-                const expectedValue = prize / n;
-                
-                winnerMessage += `\n\nYou won: ${prize.toFixed(2)}!\nExpected value was: ${expectedValue.toFixed(2)}`;
+                winnerMessage += `\n\nTotal Prize Pool: $${prize.toFixed(2)}\nYou won: $${prize.toFixed(2)}!`;
             }
             
             document.getElementById('winnerText').textContent = winnerMessage;
